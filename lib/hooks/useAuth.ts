@@ -66,7 +66,6 @@ export function useAuth() {
       });
       if (error) throw error;
       
-      // We don't need to manually redirect here as the onAuthStateChange will handle it
     } catch (error) {
       console.error('Error signing in:', error);
       throw error;
