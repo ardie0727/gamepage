@@ -43,37 +43,60 @@ export function useWordle(gameId: string, userId: string) {
               .single();
 
             if (createError) throw createError;
-            setWordleGame(newWordleGame as WordleGame);
+            if (newWordleGame) {
+              setWordleGame(newWordleGame as WordleGame);
+              
+              // After creating the game, fetch guesses
+              const { data: userGuesses } = await supabase
+                .from('wordle_guesses')
+                .select('*')
+                .eq('wordle_game_id', newWordleGame.id)
+                .eq('user_id', userId)
+                .order('attempt_number', { ascending: true });
+
+              setGuesses(userGuesses || []);
+
+              const { data: allGuesses } = await supabase
+                .from('wordle_guesses')
+                .select(`
+                  *,
+                  profiles:user_id (username)
+                `)
+                .eq('wordle_game_id', newWordleGame.id)
+                .order('created_at', { ascending: true });
+
+              setAllPlayerGuesses(allGuesses || []);
+            }
           } else {
             throw wordleError;
           }
-        } else {
+        } else if (wordleData) {
           setWordleGame(wordleData as WordleGame);
+
+          // Get user's guesses
+          const { data: userGuesses, error: guessesError } = await supabase
+            .from('wordle_guesses')
+            .select('*')
+            .eq('wordle_game_id', wordleData.id)
+            .eq('user_id', userId)
+            .order('attempt_number', { ascending: true });
+
+          if (guessesError) throw guessesError;
+          setGuesses(userGuesses || []);
+
+          // Get all players' guesses
+          const { data: allGuesses, error: allGuessesError } = await supabase
+            .from('wordle_guesses')
+            .select(`
+              *,
+              profiles:user_id (username)
+            `)
+            .eq('wordle_game_id', wordleData.id)
+            .order('created_at', { ascending: true });
+
+          if (allGuessesError) throw allGuessesError;
+          setAllPlayerGuesses(allGuesses || []);
         }
-
-        // Get user's guesses
-        const { data: userGuesses, error: guessesError } = await supabase
-          .from('wordle_guesses')
-          .select('*')
-          .eq('wordle_game_id', wordleData?.id || '')
-          .eq('user_id', userId)
-          .order('attempt_number', { ascending: true });
-
-        if (guessesError) throw guessesError;
-        setGuesses(userGuesses as WordleGuess[]);
-
-        // Get all players' guesses
-        const { data: allGuesses, error: allGuessesError } = await supabase
-          .from('wordle_guesses')
-          .select(`
-            *,
-            profiles:user_id (username)
-          `)
-          .eq('wordle_game_id', wordleData?.id || '')
-          .order('created_at', { ascending: true });
-
-        if (allGuessesError) throw allGuessesError;
-        setAllPlayerGuesses(allGuesses as any[]);
       } catch (error: any) {
         console.error('Error fetching wordle game:', error);
         setError(error.message);
@@ -95,17 +118,19 @@ export function useWordle(gameId: string, userId: string) {
             setGuesses(prev => [...prev, newGuess]);
           }
           // Update all player guesses
-          supabase
-            .from('wordle_guesses')
-            .select(`
-              *,
-              profiles:user_id (username)
-            `)
-            .eq('wordle_game_id', wordleGame?.id || '')
-            .order('created_at', { ascending: true })
-            .then(({ data }) => {
-              if (data) setAllPlayerGuesses(data as any[]);
-            });
+          if (wordleGame?.id) {
+            supabase
+              .from('wordle_guesses')
+              .select(`
+                *,
+                profiles:user_id (username)
+              `)
+              .eq('wordle_game_id', wordleGame.id)
+              .order('created_at', { ascending: true })
+              .then(({ data }) => {
+                if (data) setAllPlayerGuesses(data as any[]);
+              });
+          }
         }
       )
       .subscribe();
@@ -113,7 +138,7 @@ export function useWordle(gameId: string, userId: string) {
     return () => {
       supabase.removeChannel(guessesSubscription);
     };
-  }, [gameId, userId, wordleGame?.id]);
+  }, [gameId, userId]);
 
   const submitGuess = async (guess: string) => {
     if (!wordleGame || !userId) return;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFriends } from '@/lib/hooks/useFriends';
 import { User } from '@/lib/supabase/types';
 import { Button } from '@/components/ui/button';
@@ -179,7 +179,7 @@ export function FriendList({ userId }: FriendListProps) {
 
 // Separate component to handle fetching sender profile
 function PendingRequestCard({ request, onAccept, onReject }: { 
-  request: Friend, 
+  request: any, 
   onAccept: (id: string, name: string) => void, 
   onReject: (id: string) => void 
 }) {

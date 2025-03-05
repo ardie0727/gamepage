@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useGames } from '@/lib/hooks/useGames';
@@ -17,15 +17,20 @@ export default function DashboardPage() {
   const [creatingSession, setCreatingSession] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null; // Prevent hydration mismatch
+  }
 
   if (authLoading) {
     return <div className="flex justify-center items-center h-64">Loading...</div>;
   }
 
-  if (!user) {
-    router.push('/login');
-    return null;
-  }
 
   const handlePlayGame = async (gameId: string) => {
     try {

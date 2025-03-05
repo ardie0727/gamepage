@@ -13,6 +13,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !loading) {
+      console.log('User is authenticated, redirecting to dashboard');
       router.push('/dashboard');
     }
   }, [user, router, loading]);
@@ -20,8 +21,8 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-16rem)]">
       <div className="w-full max-w-md">
-          <AuthForm defaultTab={tab === 'register' ? 'register' : 'login'} />
+        <AuthForm defaultTab={tab === 'register' ? 'register' : 'login'} />
       </div>
     </div>
   );
-} 
+}

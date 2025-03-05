@@ -16,21 +16,20 @@ export function Keyboard({ onKeyPress, guesses, word }: KeyboardProps) {
     ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'BACKSPACE'],
   ];
 
-  // Calculate key statuses based on previous guesses
   const keyStatus: Record<string, 'correct' | 'present' | 'absent' | undefined> = {};
   
   guesses.forEach(guess => {
     const guessLetters = guess.guess.split('');
     const wordLetters = word.split('');
     
-    // First pass: mark correct letters
+
     guessLetters.forEach((letter, i) => {
       if (letter === wordLetters[i]) {
         keyStatus[letter.toUpperCase()] = 'correct';
       }
     });
     
-    // Second pass: mark present and absent letters
+
     guessLetters.forEach((letter, i) => {
       if (letter !== wordLetters[i]) {
         if (wordLetters.includes(letter) && keyStatus[letter.toUpperCase()] !== 'correct') {

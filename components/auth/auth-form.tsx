@@ -66,12 +66,14 @@ export function AuthForm({ defaultTab = 'login' }: AuthFormProps) {
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
+      console.log('Submitting login form with:', data.email);
       await signIn(data.email, data.password);
       toast({
         title: 'Success',
         description: 'You have been logged in',
       });
     } catch (error: any) {
+      console.error('Login form error:', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to log in',

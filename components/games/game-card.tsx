@@ -2,15 +2,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Game } from '@/lib/supabase/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { GameInviteDialog } from './game-invite-dialog';
 import { Users } from 'lucide-react';
 
 interface GameCardProps {
   game: Game;
   onPlay: (gameId: string) => void;
+  userId: string;
 }
 
-export function GameCard({ game, onPlay }: GameCardProps) {
+export function GameCard({ game, onPlay, userId }: GameCardProps) {
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48 w-full">
@@ -33,9 +34,11 @@ export function GameCard({ game, onPlay }: GameCardProps) {
         <p className="text-sm text-muted-foreground">{game.description}</p>
       </CardContent>
       <CardFooter>
-        <Button className="w-full" onClick={() => onPlay(game.id)}>
-          Play Now
-        </Button>
+        <GameInviteDialog
+          game={game}
+          onCreateSession={() => onPlay(game.id)}
+          userId={userId}
+        />
       </CardFooter>
     </Card>
   );
