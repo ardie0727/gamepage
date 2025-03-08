@@ -24,7 +24,7 @@ export default function DashboardPage() {
   }, []);
 
   if (!isClient) {
-    return null; // Prevent hydration mismatch
+    return null; 
   }
 
   if (authLoading) {
