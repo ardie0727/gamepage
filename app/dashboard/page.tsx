@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const handlePlayGame = async (gameId: string) => {
     try {
       setCreatingSession(true);
-      const session = await createGameSession(gameId, user.id);
+      const session = await createGameSession(gameId, user?.id);
       router.push(`/game/${session.id}`);
     } catch (error: any) {
       toast({
